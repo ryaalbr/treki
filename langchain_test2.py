@@ -75,20 +75,21 @@ def get_city_from_coords(lat, lon):
 # search = TavilySearch(max_results=2)
 tools = [get_yelp_recommendations]
 
-get_location = input("Do you want to use your current location? (Y/N) ")
+get_location = ""
+while get_location.strip().lower() not in ["n", "y"]:
+    get_location = input("Do you want to use your current location? (Y/N) ")
 
-if get_location.strip().lower() == "y":
-    lat, lon = get_current_location()
-    if lat is not None and lon is not None:
-        place = get_city_from_coords(lat, lon)
-        print(f"You are currently in: {place}")
+    if get_location.strip().lower() == "y":
+        lat, lon = get_current_location()
+        if lat is not None and lon is not None:
+            place = get_city_from_coords(lat, lon)
+            print(f"You are currently in: {place}")
+        else:
+            print("Could not determine your location. Please try again.")
+    elif get_location.strip().lower() == "n":
+        place = input("Type in place that you want to info for: ")
     else:
-        print("Could not determine your location. Please try again.")
-elif get_location.strip().lower() == "n":
-    place = input("Type in place that you want to info for: ")
-else:
-    print("Could not process input. Please try again")
-    quit()
+        print("Could not process input. Please try again")
 
 if not os.environ.get("GOOGLE_API_KEY"):
     os.environ["GOOGLE_API_KEY"] = getpass.getpass("Enter API key for Google Gemini: ")
@@ -97,20 +98,20 @@ model = init_chat_model("gemini-2.0-flash", model_provider="google_genai")
 
 agent = create_react_agent(model=model, tools=tools)
 
-feature = input("What do you want to do? (recs, plan): ")
-
-if feature == "recs":
-    rec_type = input("What do you want recommendations for? (ex. restaurants) ")
-    input_message = {"role": "user", "content": f"Your task is to come up with a list of {rec_type}s in " + place + "."}
-elif feature == "plan":
-    num_days = int(input("How many days? "))
-    time_of_year = input("What time of year are you visiting " + place + "? ")
-    interests = input("What are your interests? Do you prefer outdoor activities, historical sites, museums, fine dining, or something else? ")
-    budget = input("What is your budget for accommodations? ")
-    input_message = {"role": "user", "content": f"Your task is to plan a {str(num_days)} day itenerary for {place}. The user who requested this itenerary has answered the following questions:\n\n**What time of year are you visiting?** Answer: {time_of_year}.\n**What interests do you have?** Answer: {interests}.\n**What is your budget for accommodations?** Answer: {budget}.\n\nYou will use this information to create the itenerary. First, find what activities to do, place to go to, and restuaraunts to eat at. Next, find a hotel or apartment to stay at (this is mandatory!). Then, organize these findings in a " + str(num_days) + " day itenerary, organized by day. If the city the user is visiting in does not have many hotels or things to do, then look for experiences in nearby cities."}
-else:
-    print("Could not process input. Please try again")
-    quit()
+feature = ""
+while feature.strip().lower() not in ["recs", "plan"]:
+    feature = input("What do you want to do? (recs, plan): ")
+    if feature == "recs":
+        rec_type = input("What do you want recommendations for? (ex. restaurants) ")
+        input_message = {"role": "user", "content": f"Your task is to come up with a list of {rec_type}s in " + place + "."}
+    elif feature == "plan":
+        num_days = int(input("How many days? "))
+        time_of_year = input("What time of year are you visiting " + place + "? ")
+        interests = input("What are your interests? Do you prefer outdoor activities, historical sites, museums, fine dining, or something else? ")
+        budget = input("What is your budget for accommodations? ")
+        input_message = {"role": "user", "content": f"Your task is to plan a {str(num_days)} day itenerary for {place}. The user who requested this itenerary has answered the following questions:\n\n**What time of year are you visiting?** Answer: {time_of_year}.\n**What interests do you have?** Answer: {interests}.\n**What is your budget for accommodations?** Answer: {budget}.\n\nYou will use this information to create the itenerary. First, find what activities to do, place to go to, and restuaraunts to eat at. Next, find a hotel or apartment to stay at (this is mandatory!). Then, organize these findings in a " + str(num_days) + " day itenerary, organized by day. If the city the user is visiting in does not have many hotels or things to do, then look for experiences in nearby cities."}
+    else:
+        print("Could not process input. Please try again")
 
 response = agent.invoke({"messages": [input_message]})
 
