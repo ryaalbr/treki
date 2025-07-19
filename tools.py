@@ -28,10 +28,8 @@ def search_yelp(city, term, limit=5):
 @tool
 def get_yelp_recommendations(city: str, rec_type: str) -> str:
     """
-    Get top landmarks, museums, and restaurants from Yelp in a city.
+    Use this to get the best restaurants, museums, landmarks, and other places in a given city.
     """
-    categories = rec_type
     output = ""
-    for cat in categories:
-        output += search_yelp(city, cat) + "\n\n"
+    output += search_yelp(city, rec_type) + "\n\n"
     return output

@@ -41,8 +41,10 @@ feature = ""
 while feature.strip().lower() not in ["recs", "plan"]:
     feature = input("What do you want to do? (recs, plan): ")
     if feature == "recs":
-        rec_type = input("What do you want recommendations for? (ex. restaurants) ")
-        input_message = {"role": "user", "content": f"Your task is to come up with a list of {rec_type}s in " + place + "."}
+        rec_type = input("What do you want recommendations for? Type out a single keyword, or multiple keywords separated by commas (ex. restaurants, dining, museums) ")
+        categories = [c.strip() for c in rec_type.split(",")]
+        categories[-1] = "and " + categories[-1]
+        input_message = {"role": "user", "content": f"Your task is to come up with a list of {", ".join(categories)} in " + place + "."}
     elif feature == "plan":
         num_days = int(input("How many days? "))
         time_of_year = input("What time of year are you visiting " + place + "? ")
@@ -54,8 +56,8 @@ while feature.strip().lower() not in ["recs", "plan"]:
 
 response = agent.invoke({"messages": [input_message]})
 
-"""for step in agent.stream({"messages": [input_message]}, stream_mode="values"):
-    step["messages"][-1].pretty_print()"""
+for step in agent.stream({"messages": [input_message]}, stream_mode="values"):
+    step["messages"][-1].pretty_print()
 
 print(response["messages"][-1].content)
 save = input("Do you want to save this response to files? (Y/N) ")
