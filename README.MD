@@ -1,0 +1,1 @@
+This is treki, a AI-powered command line tool for planning vacations and travels.
