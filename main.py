@@ -43,14 +43,21 @@ while feature.strip().lower() not in ["recs", "plan"]:
     if feature == "recs":
         rec_type = input("What do you want recommendations for? Type out a single keyword, or multiple keywords separated by commas (ex. restaurants, dining, museums) ")
         categories = [c.strip() for c in rec_type.split(",")]
-        categories[-1] = "and " + categories[-1]
+        if len(categories) > 1:
+            categories[-1] = "and " + categories[-1]
         input_message = {"role": "user", "content": f"Your task is to come up with a list of {", ".join(categories)} in " + place + "."}
     elif feature == "plan":
         num_days = int(input("How many days? "))
         time_of_year = input("What time of year are you visiting " + place + "? ")
         interests = input("What are your interests? Do you prefer outdoor activities, historical sites, museums, fine dining, or something else? ")
         budget = input("What is your budget for accommodations? ")
-        input_message = {"role": "user", "content": f"Your task is to plan a {str(num_days)} day itinerary for {place}. The user who requested this iteierary has answered the following questions:\n\n**What time of year are you visiting?** Answer: {time_of_year}.\n**What interests do you have?** Answer: {interests}.\n**What is your budget for accommodations?** Answer: {budget}.\n\nYou will use this information to create the itinerary. First, find what activities to do, place to go to, and restuaraunts to eat at. Next, find a hotel or apartment to stay at (this is mandatory!). Then, organize these findings in a " + str(num_days) + " day itinerary, organized by day. If the city the user is visiting in does not have many hotels or things to do, then look for experiences in nearby cities."}
+        input_message = {"role": "user", "content": f"""Plan a {num_days}-day itinerary for a trip to {place}. User preferences:
+                         
+                         - Time of year: {time_of_year}
+                         - Interests: {interests}
+                         - Accommodation budget: {budget}
+
+                         The itinerary should include activities, places to eat, and recommended places to stay. Organize the response by day."""}
     else:
         print("Could not process input. Please try again")
 
