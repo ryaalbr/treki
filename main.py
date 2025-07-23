@@ -12,7 +12,9 @@ from langgraph.prebuilt import create_react_agent
 from langchain.chat_models import init_chat_model
 
 # search = TavilySearch(max_results=2)
-model_tools = [tools.get_yelp_recommendations]
+model_tools = [tools.get_yelp_recommendations,
+               tools.airports_near_city,
+               tools.amadeus_flight_search]
 
 get_location = ""
 while get_location.strip().lower() not in ["n", "y"]:
@@ -38,8 +40,8 @@ model = init_chat_model("gemini-2.0-flash", model_provider="google_genai")
 agent = create_react_agent(model=model, tools=model_tools)
 
 feature = ""
-while feature.strip().lower() not in ["recs", "plan"]:
-    feature = input("What do you want to do? (recs, plan): ")
+while feature.strip().lower() not in ["recs", "plan", "fly"]:
+    feature = input("What do you want to do? (recs, plan, fly): ")
     if feature == "recs":
         rec_type = input("What do you want recommendations for? Type out a single keyword, or multiple keywords separated by commas (ex. restaurants, dining, museums) ")
         categories = [c.strip() for c in rec_type.split(",")]
@@ -58,13 +60,22 @@ while feature.strip().lower() not in ["recs", "plan"]:
                          - Accommodation budget: {budget}
 
                          The itinerary should include activities, places to eat, and recommended places to stay. Organize the response by day."""}
+    elif feature == "fly":
+        depart = input("What city do you want to depart from? ")
+        arrive = input("What city do you want to arrive to? ")
+        date_of_departure = input("What is the date of departure? ")
+        input_message = {"role": "user", "content": f"""Retrieve a list of flights based on user preferences:
+                         - Depart: {depart}
+                         - Arrive: {arrive}
+                         - Date of departure: {date_of_departure}
+                         """}
     else:
         print("Could not process input. Please try again")
 
 response = agent.invoke({"messages": [input_message]})
 
-for step in agent.stream({"messages": [input_message]}, stream_mode="values"):
-    step["messages"][-1].pretty_print()
+"""for step in agent.stream({"messages": [input_message]}, stream_mode="values"):
+    step["messages"][-1].pretty_print()"""
 
 print(response["messages"][-1].content)
 save = input("Do you want to save this response to files? (Y/N) ")
